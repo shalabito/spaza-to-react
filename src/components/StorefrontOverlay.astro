@@ -1,0 +1,119 @@
+---
+// src/components/StorefrontOverlay.astro
+import DoorClickable from './DoorClickable.astro';
+---
+
+<div class="storefront-overlay">
+  <DoorClickable />
+  
+  <!-- Animated WebM with transparency -->
+  <video
+    autoplay
+    loop
+    muted
+    playsinline
+    disablePictureInPicture
+    disableRemotePlayback
+    class="storefront-video"
+  >
+    <source src="/renders/STOREFRONT_VID.webm" type="video/webm">
+  </video>
+</div>
+
+<style>
+  .storefront-overlay {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    overflow: hidden;
+  }
+
+  .storefront-video {
+    position: absolute;
+    right: -50px;
+    left: 0;
+    bottom: -1px;
+    height: 100%;
+    width: 101%;
+    max-width: 150%;
+    object-fit: cover;
+    object-position: bottom center;
+  }
+
+  .storefront-video::-webkit-media-controls {
+    display: none !important;
+  }
+
+  .storefront-video::-webkit-media-controls-enclosure {
+    display: none !important;
+  }
+
+  .storefront-video::-webkit-media-controls-panel {
+    display: none !important;
+  }
+
+  /* 2K screens and larger */
+  @media (min-width: 2560px) {
+    .storefront-overlay {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      right: 0;
+      left: 0;
+    }
+
+    .storefront-video {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      right: 0;
+      left: 0;
+      object-fit: cover;
+      object-position: bottom center;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .storefront-overlay {
+      overflow-x: clip;
+      overflow-y: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .storefront-video {
+      position: relative;
+      width: auto;
+      height: 100%;
+      left: auto;
+      right: -25px;
+      object-fit: cover;
+      object-position: center;
+    }
+  }
+
+  @media (max-width: 800px) and (orientation: landscape) {
+    .storefront-overlay {
+      overflow-x: auto;
+      overflow-y: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .storefront-video {
+      position: relative;
+      width: auto;
+      height: 100%;
+      left: auto;
+      right: auto;
+      object-fit: fill;
+      object-position: center;
+    }
+  }
+</style>

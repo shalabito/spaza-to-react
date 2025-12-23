@@ -1,0 +1,370 @@
+---
+// src/components/Navbar.astro
+interface Props {
+  transparent?: boolean;
+}
+
+const { transparent = false } = Astro.props;
+---
+
+<nav class:list={['navbar', { 'transparent': transparent }]}>
+  <div class="nav-container">
+    <!-- Logo/QR -->
+    <a href="/" class="nav-logo">
+      <img src="/images/logo-qr.svg" alt="Amu Leeuw" class="logo-qr logo-white" />
+      <img src="/images/logo-qr-black.svg" alt="Amu Leeuw" class="logo-qr logo-black" />
+    </a>
+
+    <!-- Desktop Navigation -->
+    <div class="nav-links desktop-nav">
+      <a href="/about" class="nav-link">ABOUT</a>
+      <a href="/projects" class="nav-link">PROJECTS</a>
+      <a href="mailto:info@amuleeuw.com" class="nav-link">CONTACT</a>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" aria-label="Toggle menu">
+      <span class="hamburger"></span>
+      <span class="hamburger"></span>
+      <span class="hamburger"></span>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation -->
+  <div class="mobile-nav">
+    <a href="/about" class="nav-link">ABOUT</a>
+    <a href="/projects" class="nav-link">PROJECTS</a>
+    <a href="mailto:info@amuleeuw.com" class="nav-link">CONTACT</a>
+  </div>
+</nav>
+
+<style>
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    background: #ffffff;
+    border-bottom: 2px solid #000000;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+
+  .navbar .nav-link {
+    color: #2C2C2C;
+  }
+
+  .navbar .hamburger {
+    background: #2C2C2C;
+  }
+
+  .navbar .logo-white {
+    display: none;
+  }
+
+  .navbar .logo-black {
+    display: block;
+  }
+
+  /* Transparent variant for homepage */
+  .navbar.transparent {
+    background: transparent;
+    border-bottom: 2px solid transparent;
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+
+  .navbar.transparent .nav-link {
+    color: #fff;
+  }
+
+  .navbar.transparent .hamburger {
+    background: #fff;
+  }
+
+  .navbar.transparent .logo-white {
+    display: block;
+  }
+
+  .navbar.transparent .logo-black {
+    display: none;
+  }
+
+  /* Scrolled state - add background when scrolled */
+  .navbar.transparent.scrolled {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid #000000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .navbar.transparent.scrolled .nav-link {
+    text-shadow: none;
+    color: #2C2C2C;
+  }
+
+  .navbar.transparent.scrolled .hamburger {
+    background: #2C2C2C;
+  }
+
+  .navbar.transparent.scrolled .logo-white {
+    display: none;
+  }
+
+  .navbar.transparent.scrolled .logo-black {
+    display: block;
+  }
+
+  .nav-container {
+    max-width: 100%;
+    margin: 0;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .nav-logo {
+    text-decoration: none;
+    z-index: 101;
+  }
+
+  .logo-qr {
+    height: 45px;
+    width: auto;
+    display: block;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Desktop Navigation */
+  .desktop-nav {
+    display: flex;
+    gap: 50px;
+  }
+
+  .nav-link {
+    font-family: 'Arial', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    letter-spacing: 1px;
+    padding: 8px 0;
+    transition: color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #ffffff;
+    transition: width 0.3s ease;
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
+  }
+
+  /* Active state */
+  .nav-link.active {
+    color: #E67E22;
+  }
+
+  /* Mobile Menu Button */
+  .mobile-menu-btn {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    z-index: 101;
+  }
+
+  .hamburger {
+    width: 28px;
+    height: 3px;
+    background: #fff;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .mobile-menu-btn.active .hamburger {
+    background: #2C2C2C !important;
+  }
+
+  .mobile-menu-btn.active .hamburger:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+  }
+
+  .mobile-menu-btn.active .hamburger:nth-child(2) {
+    opacity: 0;
+  }
+
+  .mobile-menu-btn.active .hamburger:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+  }
+
+  /* Mobile Navigation */
+  .mobile-nav {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    background: rgba(255, 255, 255, 0.98);
+    padding: 80px 30px 30px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .mobile-nav.active {
+    transform: translateX(0);
+  }
+
+  .mobile-nav .nav-link {
+    font-size: 1.5rem;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    text-shadow: none;
+    color: #2C2C2C !important;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    /* Default navbar - white background, black logo */
+    .navbar {
+      background: #ffffff;
+      border-bottom: 2px solid #000000;
+      padding-top: 15px;
+      padding-bottom: 15px;
+    }
+
+    .navbar .logo-white {
+      display: none;
+    }
+
+    .navbar .logo-black {
+      display: block;
+    }
+
+    .navbar .hamburger {
+      background: #2C2C2C;
+    }
+
+    .navbar .nav-link {
+      color: #2C2C2C;
+    }
+
+    /* Transparent navbar (homepage) - dark background, white logo */
+    .navbar.transparent {
+      background: #2c2c2c00;
+      padding-top: 15px;
+      padding-bottom: 15px;
+    }
+
+    .navbar.transparent .logo-white {
+      display: block;
+    }
+
+    .navbar.transparent .logo-black {
+      display: none;
+    }
+
+    .navbar.transparent .hamburger {
+      background: #fff;
+    }
+
+    .navbar.transparent .nav-link {
+      color: #fff;
+    }
+
+    .desktop-nav {
+      display: none;
+    }
+
+    .mobile-menu-btn {
+      display: flex;
+    }
+
+    .mobile-nav {
+      display: flex;
+    }
+
+    .logo-qr {
+      height: 35px;
+    }
+  }
+</style>
+
+<script>
+  // Mobile menu toggle
+  const menuBtn = document.querySelector('.mobile-menu-btn');
+  const mobileNav = document.querySelector('.mobile-nav');
+  const navbarEl = document.querySelector('.navbar');
+  const logoWhite = document.querySelector('.logo-white') as HTMLElement;
+  const logoBlack = document.querySelector('.logo-black') as HTMLElement;
+
+  menuBtn?.addEventListener('click', () => {
+    menuBtn.classList.toggle('active');
+    mobileNav?.classList.toggle('active');
+
+    // Toggle logo when menu is active
+    if (mobileNav?.classList.contains('active')) {
+      logoWhite?.style.setProperty('display', 'none', 'important');
+      logoBlack?.style.setProperty('display', 'block', 'important');
+    } else {
+      // Reset to original state based on navbar class
+      if (navbarEl?.classList.contains('transparent')) {
+        logoWhite?.style.removeProperty('display');
+        logoBlack?.style.removeProperty('display');
+      }
+    }
+  });
+
+  // Close menu when link clicked
+  const mobileLinks = document.querySelectorAll('.mobile-nav .nav-link');
+  mobileLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      menuBtn?.classList.remove('active');
+      mobileNav?.classList.remove('active');
+
+      // Reset logo
+      if (navbarEl?.classList.contains('transparent')) {
+        logoWhite?.style.removeProperty('display');
+        logoBlack?.style.removeProperty('display');
+      }
+    });
+  });
+
+  // Add scroll effect for transparent navbar
+  const transparentNavbar = document.querySelector('.navbar.transparent');
+  if (transparentNavbar) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        transparentNavbar.classList.add('scrolled');
+      } else {
+        transparentNavbar.classList.remove('scrolled');
+      }
+    });
+  }
+
+  // Set active link based on current page
+  const currentPath = window.location.pathname;
+  const navLinks = document.querySelectorAll('.nav-link');
+  
+  navLinks.forEach(link => {
+    if (link.getAttribute('href') === currentPath) {
+      link.classList.add('active');
+    }
+  });
+</script>

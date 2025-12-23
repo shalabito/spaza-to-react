@@ -1,0 +1,532 @@
+---
+interface Props {
+  minLoadTime?: number;
+}
+
+const { minLoadTime = 3000 } = Astro.props;
+---
+
+<div id="dstv-loading-screen" class="loading-screen" style="display: none;">
+  <div class="dstv-box">
+    <!-- Simple decorative cross -->
+    <div class="cross-vertical"></div>
+    <div class="cross-horizontal"></div>
+    
+    <!-- Scanning text -->
+    <div class="scanning-text">
+      Scanning in progress
+    </div>
+    
+    <!-- Main content area -->
+    <div class="content-area">
+      <!-- Website name -->
+      <div class="website-name">
+        AMULEEU<span class="w-special">W</span>.COM
+      </div>
+      
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat-line">
+          <span>Number of projects:</span>
+          <span class="stat-value" id="projects-counter">0</span>
+        </div>
+
+        <div class="stat-line">
+          <span>Number of industries served:</span>
+          <span class="stat-value" id="industries-counter">0</span>
+        </div>
+
+        <div class="stat-line">
+          <span>Number of hours of experience:</span>
+          <span class="stat-value" id="hours-counter">0</span>
+        </div>
+
+        <div class="stat-line">
+          <span>Number of impressions:</span>
+          <span class="stat-value" id="impressions-counter">0</span>
+        </div>
+
+        <div class="connection-line">
+          Connected to (<span class="connection-counter" id="connection-counter">0</span> of 30)
+        </div>
+
+        <div class="technical-line">
+          12149 V 27500 3/4 (W7)
+        </div>
+      </div>
+    </div>
+    
+    <!-- Enter button -->
+    <div class="enter-text" id="enter-text">
+      Scanning until the site is done loading
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ minLoadTime }}>
+  class DSTVLoader {
+    constructor(minLoadTime = 3000) {
+      this.minLoadTime = minLoadTime;
+      this.connectionCount = 0;
+      this.targetConnection = 30;
+      this.totalElements = 0;
+      this.loadedElements = 0;
+      this.connectionComplete = false;
+      this.loadingComplete = false;
+
+      // Stats counters
+      this.stats = {
+        projects: { current: 0, target: 7 },
+        industries: { current: 0, target: 15 },
+        hours: { current: 0, target: 50088 },
+        impressions: { current: 0, target: 108489 }
+      };
+
+      this.elements = {
+        screen: document.getElementById('dstv-loading-screen'),
+        counter: document.getElementById('connection-counter'),
+        enterText: document.getElementById('enter-text'),
+        projectsCounter: document.getElementById('projects-counter'),
+        industriesCounter: document.getElementById('industries-counter'),
+        hoursCounter: document.getElementById('hours-counter'),
+        impressionsCounter: document.getElementById('impressions-counter')
+      };
+
+      this.init();
+    }
+    
+    init() {
+      // Check if loading screen has already been shown in this session
+      if (sessionStorage.getItem('dstv-loading-shown')) {
+        // Already shown, keep it hidden
+        return;
+      }
+
+      // Mark as shown immediately to prevent showing again
+      sessionStorage.setItem('dstv-loading-shown', 'true');
+
+      // Show the loading screen
+      this.elements.screen.style.display = 'flex';
+
+      this.startConnectionAnimation();
+      this.startStatsAnimation();
+      this.monitorPageLoading();
+      this.setupClickHandler();
+    }
+
+    startStatsAnimation() {
+      const animationDuration = 3000;
+
+      // Animate projects
+      this.animateStat('projects', this.elements.projectsCounter, animationDuration);
+
+      // Animate industries
+      this.animateStat('industries', this.elements.industriesCounter, animationDuration);
+
+      // Animate hours
+      this.animateStat('hours', this.elements.hoursCounter, animationDuration, true);
+
+      // Animate impressions
+      this.animateStat('impressions', this.elements.impressionsCounter, animationDuration, true);
+    }
+
+    animateStat(statKey, element, duration, formatWithSpace = false) {
+      const stat = this.stats[statKey];
+      const steps = Math.min(stat.target, 100); // Limit steps for performance
+      const increment = stat.target / steps;
+      const stepDuration = duration / steps;
+
+      const animate = () => {
+        if (stat.current < stat.target && !this.loadingComplete) {
+          stat.current = Math.min(stat.current + increment, stat.target);
+          const displayValue = Math.floor(stat.current);
+
+          if (formatWithSpace) {
+            // Format with space for thousands (e.g., "50 088")
+            element.textContent = displayValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+          } else {
+            element.textContent = displayValue;
+          }
+
+          setTimeout(animate, stepDuration + Math.random() * 100);
+        } else {
+          // Set final value
+          const finalValue = stat.target;
+          if (formatWithSpace) {
+            element.textContent = finalValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+          } else {
+            element.textContent = finalValue;
+          }
+        }
+      };
+
+      setTimeout(animate, 500);
+    }
+    
+    setupClickHandler() {
+      this.elements.enterText.addEventListener('click', () => {
+        if (this.loadingComplete) {
+          this.enterSite();
+        }
+      });
+    }
+    
+    startConnectionAnimation() {
+      const animationDuration = 3000;
+      const steps = this.targetConnection - this.connectionCount;
+      const stepDuration = animationDuration / steps;
+      
+      const animate = () => {
+        if (this.connectionCount < this.targetConnection) {
+          this.connectionCount++;
+          this.elements.counter.textContent = this.connectionCount;
+          
+          setTimeout(animate, stepDuration + Math.random() * 200);
+        } else {
+          this.connectionComplete = true;
+          this.monitorContentLoading();
+        }
+      };
+      
+      setTimeout(animate, 500);
+    }
+    
+    monitorPageLoading() {
+      const images = document.querySelectorAll('img');
+      const videos = document.querySelectorAll('video');
+      
+      this.totalElements = images.length + videos.length + 1;
+      
+      // Monitor images
+      images.forEach(img => {
+        if (img.complete) {
+          this.loadedElements++;
+        } else {
+          const onLoad = () => {
+            this.loadedElements++;
+            this.checkLoadingComplete();
+            img.removeEventListener('load', onLoad);
+            img.removeEventListener('error', onLoad);
+          };
+          img.addEventListener('load', onLoad);
+          img.addEventListener('error', onLoad);
+        }
+      });
+      
+      // Monitor videos
+      videos.forEach(video => {
+        if (video.readyState >= 3) {
+          this.loadedElements++;
+        } else {
+          const onLoad = () => {
+            this.loadedElements++;
+            this.checkLoadingComplete();
+            video.removeEventListener('canplaythrough', onLoad);
+            video.removeEventListener('error', onLoad);
+          };
+          video.addEventListener('canplaythrough', onLoad);
+          video.addEventListener('error', onLoad);
+        }
+      });
+      
+      // Monitor document ready state
+      if (document.readyState === 'complete') {
+        this.loadedElements++;
+      } else {
+        window.addEventListener('load', () => {
+          this.loadedElements++;
+          this.checkLoadingComplete();
+        });
+      }
+      
+      this.checkLoadingComplete();
+    }
+    
+    monitorContentLoading() {
+      setTimeout(() => {
+        this.checkLoadingComplete();
+      }, this.minLoadTime);
+      
+      const checkInterval = setInterval(() => {
+        this.checkLoadingComplete();
+        if (this.loadingComplete) {
+          clearInterval(checkInterval);
+        }
+      }, 100);
+    }
+    
+    checkLoadingComplete() {
+      if (this.connectionComplete && 
+          this.loadedElements >= this.totalElements && 
+          !this.loadingComplete) {
+        this.completeLoading();
+      }
+    }
+    
+    completeLoading() {
+      this.loadingComplete = true;
+      this.elements.enterText.innerHTML = 'Press HERE to enter website';
+      this.elements.enterText.classList.add('ready');
+    }
+    
+    enterSite() {
+      this.elements.screen.style.opacity = '0';
+      this.elements.screen.style.pointerEvents = 'none';
+
+      setTimeout(() => {
+        this.elements.screen.style.display = 'none';
+        window.dispatchEvent(new CustomEvent('dstv-site-entered'));
+      }, 500);
+    }
+    
+    forceComplete() {
+      this.connectionCount = this.targetConnection;
+      this.elements.counter.textContent = this.connectionCount;
+      this.connectionComplete = true;
+      this.loadedElements = this.totalElements;
+      this.completeLoading();
+    }
+  }
+  
+  // Initialize the loader when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      window.dstvLoader = new DSTVLoader(minLoadTime);
+    });
+  } else {
+    window.dstvLoader = new DSTVLoader(minLoadTime);
+  }
+  
+  // Expose global method to force completion
+  window.completeDSTVLoading = () => {
+    if (window.dstvLoader) {
+      window.dstvLoader.forceComplete();
+    }
+  };
+</script>
+
+<style>
+  .loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    font-family: Arial, sans-serif;
+    transition: opacity 0.5s ease-out;
+  }
+
+  .dstv-box {
+    width: 800px;
+    height: 450px;
+    background-color: #3911c8;
+    position: relative;
+    border: none;
+    color: #9ba6d0;
+    overflow: hidden;
+  }
+
+  /* Simple cross decoration */
+  .cross-vertical {
+    display: none;
+  }
+
+  .cross-horizontal {
+    display: none;
+  }
+
+  .scanning-text {
+    position: absolute;
+    top: 10px;
+    left: 15px;
+    right: 15px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #000000;
+    white-space: nowrap;
+    background-color: #9ba6d0;
+    padding: 8px 20px;
+    text-align: center;
+  }
+
+  .content-area {
+    position: absolute;
+    top: 105px;
+    left: 45px;
+    right: 45px;
+    bottom: 105px;
+    background-color: #9ba6d0;
+    padding: 20px 25px;
+  }
+
+  .website-name {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #000000;
+  }
+
+  .w-special {
+    letter-spacing: -0.1em;
+  }
+
+  .stats {
+    line-height: 1.3;
+  }
+
+  .stat-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    margin-bottom: 2px;
+    color: #000000;
+    font-weight: 700;
+  }
+
+  .stat-value {
+    color: #000000;
+    font-weight: 700;
+  }
+
+  .connection-line {
+    font-size: 18px;
+    margin: 15px 0 5px 0;
+    color: #000000;
+    font-weight: 700;
+  }
+
+  .connection-counter {
+    color: #000000;
+    font-weight: 700;
+  }
+
+  .technical-line {
+    font-size: 18px;
+    color: #000000;
+    font-weight: 700;
+  }
+
+  .enter-text {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    right: 15px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #000000;
+    cursor: default;
+    user-select: none;
+    background-color: #9ba6d0;
+    padding: 8px 20px;
+    text-align: left;
+    padding-left: 30px;
+  }
+
+  .enter-text.ready {
+    color: #000000;
+    cursor: pointer;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .dstv-box {
+      width: 90vw;
+      height: 60vh;
+      max-width: 700px;
+      max-height: 400px;
+    }
+    
+    .scanning-text {
+      font-size: 14px;
+      top: 15px;
+    }
+    
+    .content-area {
+      top: px;
+      left: 45px;
+      right: 45px;
+      bottom: 100px;
+      padding: 15px 15px;
+    }
+    
+    .website-name {
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+    
+    .stat-line, .connection-line {
+      font-size: 14px;
+    }
+
+    .connection-line {
+      margin: 12px 0 5px 0;
+    }
+
+    .technical-line {
+      font-size: 14px;
+    }
+    
+    .enter-text {
+      font-size: 14px;
+      left: 15px;
+      right: 15px;
+      bottom: 15px;
+      padding-left: 20px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .dstv-box {
+      width: 95vw;
+      height: 70vh;
+    }
+
+    .scanning-text {
+      font-size: 13px;
+      top: 15px;
+    }
+
+    .content-area {
+      top: 120px;
+      left: 45px;
+      right: 45px;
+      bottom: 110px;
+      padding:10px 15px;
+    }
+    
+    .website-name {
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+    
+    .stat-line, .connection-line {
+      font-size: 13px;
+    }
+
+    .connection-line {
+      margin: 10px 0 5px 0;
+    }
+
+    .technical-line {
+      font-size: 13px;
+    }
+    
+    .enter-text {
+      font-size: 13px;
+      left: 15px;
+      right: 15px;
+      bottom: 15px;
+      padding-left: 10px;
+    }
+  }
+</style>

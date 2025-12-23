@@ -1,0 +1,31 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import StorefrontOverlay from '../components/StorefrontOverlay.astro';
+import RoadFooter from '../components/RoadFooter.astro';
+---
+
+<Layout title="Shalas - Multimedia Designer & Entrepreneur" showLoader={true}>
+  <Navbar transparent={true} />
+
+  <main class="spaza-scene">
+    <div class="storefront-section">
+      <StorefrontOverlay />
+    </div>
+
+    <RoadFooter />
+  </main>
+</Layout>
+
+<style>
+  .spaza-scene {
+    position: relative;
+    width: fill;
+  }
+
+  .storefront-section {
+    position: relative;
+    min-height: 100vh;
+    width: fill;
+  }
+</style>

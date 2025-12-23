@@ -1,0 +1,50 @@
+---
+// src/components/DoorClickable.astro
+---
+
+<a href="/projects" class="door-clickable">
+  <span class="sr-only">Enter the store</span>
+</a>
+
+<style>
+  .door-clickable {
+    position: absolute;
+    left: 46.13%;
+    top: 71.3%;
+    width: 5%;
+    height: 20%;
+    z-index: 10;
+    cursor: pointer;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+
+  .door-clickable:hover {
+    transform: scale(1.05);
+  }
+
+  .door-clickable::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 0, 0);
+    transition: background 0.3s ease;
+    pointer-events: none;
+  }
+
+  .door-clickable:hover::before {
+    background: rgba(255, 255, 0, 0);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+</style>

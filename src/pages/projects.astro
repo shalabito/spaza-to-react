@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import MobileCatalog from '../components/MobileCatalog.astro';
+---
+
+<Layout 
+  title="Projects - Shalas Portfolio"
+  description="Selected works in brand identity, creative direction, photography, and web development."
+>
+  <Navbar />
+  
+  <main class="projects-page">
+    <MobileCatalog />
+  </main>
+</Layout>
+
+<style>
+  .projects-page {
+    min-height: 100vh;
+    background: #E8E8E8;
+  }
+</style>

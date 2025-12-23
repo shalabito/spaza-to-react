@@ -1,0 +1,17 @@
+{
+  "name": "shalas-spaza-portfolio",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@types/three": "^0.182.0",
+    "astro": "^5.16.4",
+    "sass": "^1.94.2",
+    "three": "^0.182.0"
+  }
+}

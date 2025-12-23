@@ -1,0 +1,177 @@
+---
+// src/components/MobileCatalog.astro
+import { getCollection } from 'astro:content';
+
+// Get all published projects
+const allProjects = await getCollection('projects', ({ data }) => {
+  return data.status === 'published';
+});
+
+// Sort by year (newest first)
+const projects = allProjects.sort((a, b) => b.data.year - a.data.year);
+
+// Find The Collectn (featured/hero project)
+const heroProject = projects.find(p => p.slug === 'the-collectn') || projects[0];
+const otherProjects = projects.filter(p => p.slug !== heroProject.slug);
+---
+
+<div class="mobile-catalog">
+  <!-- Single background for all projects -->
+  <div class="shelf-section">
+    <img src="/renders/SHELF_BG_MB.png" alt="" class="shelf-bg" />
+    
+    <div class="products-layer">
+      <!-- Hero Project (The Collectn TV - Large) -->
+      <a href={`/project/${heroProject.slug}`} class="product-hero">
+        <video 
+          autoplay 
+          loop 
+          muted 
+          playsinline 
+          disablepictureinpicture 
+          disableRemotePlayback 
+          class="product-video"
+        >
+          <!-- Safari: MOV with alpha -->
+          <source src={heroProject.data.videoMov} type='video/quicktime; codecs="hvc1"'>
+          <!-- Everyone else: WebM -->
+          <source src={heroProject.data.videoThumbnail} type="video/webm">
+        </video>
+      </a>
+
+      <!-- Regular Projects -->
+      {otherProjects.map((project, index) => (
+        <a href={`/project/${project.slug}`} class="product-regular" data-index={index}>
+          <video 
+            autoplay 
+            loop 
+            muted 
+            playsinline 
+            disablepictureinpicture 
+            disableRemotePlayback 
+            class="product-video"
+          >
+            <!-- Safari: MOV with alpha -->
+            <source src={project.data.videoMov} type='video/quicktime; codecs="hvc1"'>
+            <!-- Everyone else: WebM -->
+            <source src={project.data.videoThumbnail} type="video/webm">
+          </video>
+        </a>
+      ))}
+    </div>
+  </div>
+</div>
+
+<style>
+  .mobile-catalog {
+    min-height: 100vh;
+    background: #E8E8E8;
+    padding: 0;
+  }
+
+  .shelf-section {
+    position: relative;
+    width: 100%;
+    height: 120vh;
+  }
+
+  .shelf-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .products-layer {
+    position: absolute;
+    top: 1%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Hero Project (The Collectn TV - Large, Centered) */
+  .product-hero {
+    position: absolute;
+    left: 50%;
+    top: 15%;
+    transform: translateX(-50%);
+    width: 90%;
+    display: block;
+    cursor: pointer;
+  }
+
+  /* Regular Projects (2 per row) */
+  .product-regular {
+    position: absolute;
+    width: 50%;
+    display: block;
+    cursor: pointer;
+  }
+
+  /* First row - 2 projects */
+  .product-regular[data-index="0"] {
+    left: 0%;
+    top: 42%;
+  }
+
+  .product-regular[data-index="1"] {
+    right: 0%;
+    top: 42%;
+  }
+
+  /* Second row - 2 projects */
+  .product-regular[data-index="2"] {
+    left: 0%;
+    top: 72%;
+  }
+
+  .product-regular[data-index="3"] {
+    right: 0%;
+    top: 72%;
+  }
+
+  /* Third row - 1 project (centered if odd number) */
+  .product-regular[data-index="4"] {
+    left: 50%;
+    transform: translateX(-50%);
+    top: 92%;
+  }
+
+  .product-video {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .product-video::-webkit-media-controls {
+    display: none !important;
+  }
+
+  .product-video::-webkit-media-controls-enclosure {
+    display: none !important;
+  }
+
+  .product-video::-webkit-media-controls-panel {
+    display: none !important;
+  }
+</style>
+
+<script>
+  const videos = document.querySelectorAll('.product-video');
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const video = entry.target as HTMLVideoElement;
+      if (entry.isIntersecting) {
+        video.play();
+      } else {
+        video.pause();
+      }
+    });
+  }, {
+    threshold: 0.25
+  });
+
+  videos.forEach(video => observer.observe(video));
+</script>

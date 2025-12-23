@@ -1,0 +1,73 @@
+---
+import DSTVLoader from '../components/DSTVLoader.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  showLoader?: boolean;
+}
+const { title, description = "Portfolio", showLoader = false } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content={description}>
+  <title>{title}</title>
+  <style>
+    body {
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    body.page-transitioning {
+      opacity: 0;
+    }
+
+    body.page-loaded {
+      opacity: 0;
+      animation: fadeIn 0.3s ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- DSTV Loading Screen - Must be first -->
+  {showLoader && <DSTVLoader minLoadTime={3000} />}
+
+  <!-- Your site content -->
+  <slot />
+  
+  <script>
+    // Optional: Listen for user entering site
+    window.addEventListener('dstv-site-entered', () => {
+      console.log('Welcome to the spaza shop!');
+      // Add any initialization code here
+    });
+
+    // Page transition animations
+    document.addEventListener('astro:before-preparation', () => {
+      document.body.classList.add('page-transitioning');
+    });
+
+    document.addEventListener('astro:page-load', () => {
+      document.body.classList.remove('page-transitioning');
+      document.body.classList.add('page-loaded');
+      setTimeout(() => {
+        document.body.classList.remove('page-loaded');
+      }, 500);
+    });
+  </script>
+</body>
+</html>
+<style is:global>
+  @import '../styles/global.css';
+</style>

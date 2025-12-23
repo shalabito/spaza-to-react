@@ -1,0 +1,46 @@
+---
+// src/components/RoadFooter.astro
+---
+<div class="copyright-text">
+  © 2026. Amu Leeuw. All Rights Reserved. <br> Web Experience by ALL AT ONCE™.
+</div>
+
+<div class="road-footer">
+  <img 
+    src="/renders/road-footer.png" 
+    alt=""
+    class="road-image"
+  />
+</div>
+
+<style>
+  .road-footer {
+    position: absolute;
+    width: 100%;
+    height: auto;
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .road-image {
+    width: 100%;
+    max-width: 105%;
+    height: 100px;
+    top: -1px;
+    display: block;
+  }
+  
+  .copyright-text {
+    position: absolute;
+    bottom: -90px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 7px;
+    color: white;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    z-index: 4;
+  }
+</style>
